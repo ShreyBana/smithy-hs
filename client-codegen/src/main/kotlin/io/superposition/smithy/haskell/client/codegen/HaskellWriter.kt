@@ -15,6 +15,7 @@ class HaskellWriter(val fileName: String, val modName: String) : SymbolWriter<Ha
         setExpressionStart('#')
         putFormatter('D', this::dependencyFormatter)
         putFormatter('T', this::haskellTypeFormatter)
+        putDefaultContext()
     }
 
     override fun toString(): String {
@@ -27,6 +28,18 @@ class HaskellWriter(val fileName: String, val modName: String) : SymbolWriter<Ha
         sb.appendLine(super.toString())
 
         return sb.toString()
+    }
+
+    override fun pushState(): HaskellWriter {
+        super.pushState()
+        putDefaultContext()
+        return this
+    }
+
+    private fun putDefaultContext() {
+        putContext("functor", HaskellSymbol.Functor)
+        putContext("applicative", HaskellSymbol.Applicative)
+        putContext("monad", HaskellSymbol.Monad)
     }
 
     private fun dependencyFormatter(type: Any, ignored: String): String {

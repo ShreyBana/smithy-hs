@@ -4,29 +4,35 @@ package io.superposition.smithy.haskell.client.codegen.generators
 
 import io.superposition.smithy.haskell.client.codegen.HaskellContext
 import io.superposition.smithy.haskell.client.codegen.HaskellSettings
+import io.superposition.smithy.haskell.client.codegen.HaskellWriter
+import software.amazon.smithy.codegen.core.SymbolProvider
 import software.amazon.smithy.codegen.core.directed.ShapeDirective
 import software.amazon.smithy.model.shapes.StructureShape
 import java.util.function.Consumer
 
 @Suppress("MaxLineLength")
 class StructureGenerator<T : ShapeDirective<StructureShape, HaskellContext, HaskellSettings>> : Consumer<T> {
+
     override fun accept(directive: T) {
-        val shape = directive.shape()
-        val symbolProvider = directive.symbolProvider()
-
         // Generate structure code
+        val symbolProvider = directive.symbolProvider()
+        val shape = directive.shape()
         directive.context().writerDelegator().useShapeWriter(shape) { writer ->
-            // Write structure implementation
-            writer.write("-- Structure implementation for ${shape.id.name}")
+            writer.write("#C", writer.consumer(DataSection(shape, symbolProvider)::accept))
+            writer.write("#C", BuilderGenerator(shape, symbolProvider, writer))
+        }
+    }
 
-            writer.write("data ${shape.id.name} = ${shape.id.name} {")
-            for (member in shape.members()) {
-                // TODO check for string symbols
-                val memberName = symbolProvider.toMemberName(member)
-                val memberType = symbolProvider.toSymbol(member)
-                writer.write("  $memberName :: #T,", memberType)
+    class DataSection(val shape: StructureShape, val symbolProvider: SymbolProvider) {
+        fun accept(writer: HaskellWriter) {
+            val symbol = symbolProvider.toSymbol(shape)
+            writer.openBlock("data #T = #T {", "}", symbol, symbol) {
+                shape.members().map {
+                    val mName = symbolProvider.toMemberName(it)
+                    val mSymbol = symbolProvider.toSymbol(it)
+                    writer.write("$mName :: #T", mSymbol)
+                }
             }
-            writer.write("}")
         }
     }
 }
