@@ -24,15 +24,16 @@ class BuilderGenerator(
     @Suppress("MaxLineLength")
     override fun run() {
         writer.pushState()
-        writer.putContext("builderState", BuilderStateSection())
-        writer.putContext("defaultBuilderState", DefaultBuilderSection())
+        writer.putContext("builderState", Runnable(::builderStateSection))
+        writer.putContext("defaultBuilderState", Runnable(::defaultBuilderState))
         writer.write(
             """
            #{builderState:C}
 
            #{defaultBuilderState:C}
 
-            newtype $builderName a = $builderName { run$builderName :: $stateName -> ($stateName, a) }
+            newtype $builderName a =
+                $builderName { run$builderName :: $stateName -> ($stateName, a) }
 
             instance #{functor:T} $builderName where
                 fmap f ($builderName g) = $builderName ${'$'} \s -> let (s', a) = g s in (s', f a)
@@ -54,22 +55,18 @@ class BuilderGenerator(
         writer.popState()
     }
 
-    private inner class BuilderStateSection : Runnable {
-        override fun run() {
-            writer.openBlock("data $stateName = $stateName {", "}") {
-                builderStateMembers.map {
-                    writer.write("${it.name} :: #T,", it.symbol)
-                }
+    private fun builderStateSection() {
+        writer.openBlock("data $stateName = $stateName {", "}") {
+            builderStateMembers.map {
+                writer.write("${it.name} :: #T,", it.symbol)
             }
         }
     }
 
-    private inner class DefaultBuilderSection : Runnable {
-        override fun run() {
-            writer.openBlock("default$stateName = $stateName {", "}") {
-                builderStateMembers.map {
-                    writer.write("${it.name} = Nothing,")
-                }
+    private fun defaultBuilderState() {
+        writer.openBlock("default$stateName = $stateName {", "}") {
+            builderStateMembers.map {
+                writer.write("${it.name} = Nothing,")
             }
         }
     }
