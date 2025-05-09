@@ -19,6 +19,10 @@ class HaskellWriter(val fileName: String, val modName: String) : SymbolWriter<Ha
     }
 
     override fun toString(): String {
+        if (!fileName.endsWith(".hs")) {
+            return super.toString()
+        }
+
         val sb = StringBuilder()
 
         sb.appendLine("module $modName where")
@@ -40,6 +44,9 @@ class HaskellWriter(val fileName: String, val modName: String) : SymbolWriter<Ha
         putContext("functor", HaskellSymbol.Functor)
         putContext("applicative", HaskellSymbol.Applicative)
         putContext("monad", HaskellSymbol.Monad)
+        putContext("either", HaskellSymbol.Either)
+        putContext("maybe", HaskellSymbol.Maybe)
+        putContext("text", HaskellSymbol.Text)
     }
 
     private fun dependencyFormatter(type: Any, ignored: String): String {

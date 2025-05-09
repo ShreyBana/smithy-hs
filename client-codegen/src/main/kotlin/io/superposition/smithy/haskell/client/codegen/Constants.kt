@@ -36,4 +36,10 @@ object HaskellSymbol {
         .name("Monad")
         .namespace("Control.Monad", ".")
         .build()
+
+    // TODO Add dependency.
+    val Text = Symbol.builder()
+        .name("Text")
+        .namespace("Data.Text", ".")
+        .build()
 }

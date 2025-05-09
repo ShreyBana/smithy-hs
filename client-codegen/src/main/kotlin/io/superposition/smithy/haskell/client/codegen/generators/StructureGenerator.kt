@@ -17,9 +17,10 @@ class StructureGenerator<T : ShapeDirective<StructureShape, HaskellContext, Hask
         // Generate structure code
         val symbolProvider = directive.symbolProvider()
         val shape = directive.shape()
+        val symbol = symbolProvider.toSymbol(shape)
         directive.context().writerDelegator().useShapeWriter(shape) { writer ->
             writer.write("#C", writer.consumer(DataSection(shape, symbolProvider)::accept))
-            writer.write("#C", BuilderGenerator(shape, symbolProvider, writer))
+            writer.write("#C", BuilderGenerator(shape, symbol, symbolProvider, writer))
         }
     }
 
@@ -30,7 +31,7 @@ class StructureGenerator<T : ShapeDirective<StructureShape, HaskellContext, Hask
                 shape.members().map {
                     val mName = symbolProvider.toMemberName(it)
                     val mSymbol = symbolProvider.toSymbol(it)
-                    writer.write("$mName :: #T", mSymbol)
+                    writer.write("$mName :: #T,", mSymbol)
                 }
             }
         }
