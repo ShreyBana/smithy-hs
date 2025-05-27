@@ -1,6 +1,7 @@
 package io.superposition.smithy.haskell.client.codegen
 
 import io.superposition.smithy.haskell.client.codegen.language.Record
+import io.superposition.smithy.haskell.client.codegen.language.Function
 import software.amazon.smithy.codegen.core.CodegenException
 import software.amazon.smithy.codegen.core.Symbol
 import software.amazon.smithy.codegen.core.SymbolDependency
@@ -40,6 +41,7 @@ class HaskellWriter(
         putFormatter('D', this::dependencyFormatter)
         putFormatter('T', this::haskellTypeFormatter)
         putFormatter('N', this::namespaceFormatter)
+        putFormatter('F', this::functionFormatter)
         putDefaultContext()
         if (isSourceFile) {
             if (modName.isEmpty()) throw CodegenException("Module name is empty.")
@@ -86,27 +88,27 @@ class HaskellWriter(
     }
 
     private fun putDefaultContext() {
-        putContext("functor", HaskellSymbol.Functor)
-        putContext("applicative", HaskellSymbol.Applicative)
-        putContext("monad", HaskellSymbol.Monad)
-        putContext("either", HaskellSymbol.Either)
-        putContext("maybe", HaskellSymbol.Maybe)
-        putContext("text", HaskellSymbol.Text)
-        putContext("just", HaskellSymbol.Maybe.toBuilder().name("Just").build())
-        putContext("nothing", HaskellSymbol.Maybe.toBuilder().name("Nothing").build())
-        putContext("right", HaskellSymbol.Either.toBuilder().name("Right").build())
-        putContext("left", HaskellSymbol.Either.toBuilder().name("Left").build())
-        putContext("manager", HaskellSymbol.Http.Manager)
-        putContext("list", HaskellSymbol.List)
-        putContext("map", HaskellSymbol.Map)
-        putContext("aeson", HaskellSymbol.Aeson)
-        putContext("byteString", HaskellSymbol.ByteString)
-        putContext("lazyByteString", HaskellSymbol.LazyByteString)
-        putContext("flip", HaskellSymbol.Flip)
-        putContext("and", HaskellSymbol.And)
-        putContext("query", Http.Query)
-        putContext("httpClient", Http.HttpClient)
-        putContext("first", BiFunctor.first)
+        putContext("functor", Base.Functor)
+        putContext("applicative", Base.Applicative)
+        putContext("monad", Base.Monad)
+        putContext("either", Base.Either)
+        putContext("maybe", Base.Maybe)
+        putContext("text", Text.Text)
+        putContext("just", Base.Maybe.toBuilder().name("Just").build())
+        putContext("nothing", Base.Maybe.toBuilder().name("Nothing").build())
+        putContext("right", Base.Either.toBuilder().name("Right").build())
+        putContext("left", Base.Either.toBuilder().name("Left").build())
+        putContext("manager", HttpClient.Manager)
+        putContext("list", Base.List)
+        putContext("map", Containers.Map)
+        putContext("aeson", Aeson.Aeson)
+        putContext("byteString", ByteString.ByteString)
+        putContext("lazyByteString", ByteString.LazyByteString)
+        putContext("flip", Base.Flip)
+        putContext("and", Base.And)
+        putContext("query", HttpTypes.Query)
+        putContext("httpClient", HttpClient.httpLbs)
+        putContext("first", Base.first)
     }
 
     private fun dependencyFormatter(type: Any, ignored: String): String {
@@ -132,6 +134,13 @@ class HaskellWriter(
         importContainer.importSymbol(sym, null)
         addDependency(sym)
         return sym.namespace
+    }
+
+    private fun functionFormatter(func: Any, indent: String): String {
+        require(func is Function)
+        importContainer.importFunction(func)
+        addDependency(func.module.dependency)
+        return "${func.module.name}.${func.name}"
     }
 
     private fun renderSymbol(sym: Symbol): List<String> {
@@ -188,7 +197,7 @@ class HaskellWriter(
     }
 
     inner class CallChain(private val indentLevel: Int) {
-        val chainFn = HaskellSymbol.And
+        val chainFn = Base.And
         private val buf: MutableList<String> = ArrayList()
         private var closed = false
 

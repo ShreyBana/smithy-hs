@@ -5,10 +5,12 @@ import software.amazon.smithy.codegen.core.ImportContainer
 import software.amazon.smithy.codegen.core.Symbol
 import java.util.TreeSet
 import java.util.logging.Logger
+import io.superposition.smithy.haskell.client.codegen.language.Function
 
 class HaskellImportContainer(private val modName: String) : ImportContainer {
     private val imports: MutableMap<String, MutableSet<Symbol>> = HashMap()
     private val logger: Logger = Logger.getLogger(this.javaClass.name)
+    private val functionImports: MutableList<Function> = ArrayList()
 
     companion object {
         private val expectionList = listOf(
@@ -35,6 +37,10 @@ class HaskellImportContainer(private val modName: String) : ImportContainer {
         }
     }
 
+    fun importFunction(func: Function) {
+        functionImports.add(func)
+    }
+
     override fun toString(): String {
         println("${imports.values}")
         val orderedImports = imports.values
@@ -42,6 +48,8 @@ class HaskellImportContainer(private val modName: String) : ImportContainer {
             .filter { s -> s.namespace != modName }
             .map { s -> "import qualified ${s.namespace}" }
             .toCollection(TreeSet())
+
+        orderedImports.addAll(functionImports.map { it.module.name })
 
         return orderedImports.joinToString(System.lineSeparator())
     }

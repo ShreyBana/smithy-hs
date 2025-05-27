@@ -5,7 +5,6 @@
 package io.superposition.smithy.haskell.client.codegen.generators
 
 import io.superposition.smithy.haskell.client.codegen.*
-import io.superposition.smithy.haskell.client.codegen.HaskellSymbol.EncodingUtf8
 import io.superposition.smithy.haskell.client.codegen.language.ClientRecord
 import software.amazon.smithy.codegen.core.Symbol
 import software.amazon.smithy.model.shapes.*
@@ -55,10 +54,10 @@ class OperationGenerator<T : HaskellShapeDirective<OperationShape>>(
             writer.putContext("output", outputSymbol)
             writer.putContext("outputBuilder", outputBuilder)
             writer.putContext("client", clientSymbol)
-            writer.putContext("uri", HaskellSymbol.Http.Uri)
-            writer.putContext("ci", HaskellSymbol.Misc.CaseInsensitive)
-            writer.putContext("someException", HaskellSymbol.SomeException)
-            writer.putContext("encoding", HaskellSymbol.EncodingUtf8)
+            writer.putContext("uri", NetworkUri.URI)
+            writer.putContext("ci", CaseInsensitive.CI)
+            writer.putContext("someException", Base.SomeException)
+            writer.putContext("encoding", Text.encodeUtf8)
             writer.putContext(
                 "operationError",
                 Runnable { operationErrorGenerator(writer) }

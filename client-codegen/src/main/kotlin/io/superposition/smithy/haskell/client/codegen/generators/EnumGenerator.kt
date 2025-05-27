@@ -4,11 +4,9 @@ package io.superposition.smithy.haskell.client.codegen.generators
 
 import io.superposition.smithy.haskell.client.codegen.HaskellContext
 import io.superposition.smithy.haskell.client.codegen.HaskellSettings
-import io.superposition.smithy.haskell.client.codegen.HaskellSymbol.Eq
-import io.superposition.smithy.haskell.client.codegen.HaskellSymbol.Generic
-import io.superposition.smithy.haskell.client.codegen.HaskellSymbol.JsonString
-import io.superposition.smithy.haskell.client.codegen.HaskellSymbol.TextPack
-import io.superposition.smithy.haskell.client.codegen.HaskellSymbol.ToJSON
+import io.superposition.smithy.haskell.client.codegen.Aeson
+import io.superposition.smithy.haskell.client.codegen.Base
+import io.superposition.smithy.haskell.client.codegen.Text
 import io.superposition.smithy.haskell.client.codegen.HaskellWriter
 import software.amazon.smithy.codegen.core.Symbol
 import software.amazon.smithy.codegen.core.directed.ShapeDirective
@@ -75,9 +73,9 @@ class EnumGenerator<T : ShapeDirective<Shape, HaskellContext, HaskellSettings>> 
         override fun run() {
             writer.pushState()
             writer.putContext("shape", symbol)
-            writer.putContext("serializerClass", ToJSON)
-            writer.putContext("jsonString", JsonString)
-            writer.putContext("textPack", TextPack)
+            writer.putContext("serializerClass", Aeson.ToJSON)
+            writer.putContext("jsonString", Aeson.JsonString)
+            writer.putContext("textPack", Text.pack)
             writer.openBlock("instance #{serializerClass:T} #{shape:T} where", "") {
                 for (member in shape.members()) {
                     val jsonName = getJsonName(member)
@@ -94,7 +92,7 @@ class EnumGenerator<T : ShapeDirective<Shape, HaskellContext, HaskellSettings>> 
     }
 
     private class DerivesGenerator(private val writer: HaskellWriter) : Runnable {
-        val defaultDerives = listOf(Generic, Eq)
+        val defaultDerives = listOf(Base.Generic, Base.Eq)
         override fun run() {
             writer.writeInline("deriving (")
             for ((i, derive) in defaultDerives.withIndex()) {
