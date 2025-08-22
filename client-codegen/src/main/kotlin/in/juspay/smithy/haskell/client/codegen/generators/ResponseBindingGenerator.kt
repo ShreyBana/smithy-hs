@@ -219,6 +219,15 @@ class ResponseBindingGenerator(
             "deserializeResponse response = do",
             ""
         ) {
+            writer.write(
+                """
+                if #{httpClient:N}.responseStatus response /= #{httpTypes:N}.status${httpBindingIndex.getResponseCode(
+                    operation
+                )}
+                  then Left "Un-expected status."
+                  else pure ()
+                """.trimIndent()
+            )
             val template = """
             #{headers:C|}
             #{payload:C|}

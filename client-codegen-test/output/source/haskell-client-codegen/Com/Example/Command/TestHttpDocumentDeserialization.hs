@@ -30,6 +30,7 @@ import qualified GHC.Generics
 import qualified GHC.Show
 import qualified Network.HTTP.Client
 import qualified Network.HTTP.Date
+import qualified Network.HTTP.Types
 import qualified Network.HTTP.Types.Method
 import qualified Network.HTTP.Types.URI
 
@@ -101,6 +102,9 @@ testHttpDocumentDeserialization client inputB = do
 
 deserializeResponse :: Network.HTTP.Client.Response Data.ByteString.Lazy.ByteString -> Data.Either.Either Data.Text.Text Com.Example.Model.TestHttpDocumentDeserializationOutput.TestHttpDocumentDeserializationOutput
 deserializeResponse response = do
+    if Network.HTTP.Client.responseStatus response /= Network.HTTP.Types.status200
+      then Left "Un-expected status."
+      else pure ()
     outputHeaderHeaderE :: Data.Maybe.Maybe Data.Text.Text <-
         (findHeader "x-output-header" Data.Functor.<&> Com.Example.Utility.fromResponseSegment)
                 Data.Function.& sequence

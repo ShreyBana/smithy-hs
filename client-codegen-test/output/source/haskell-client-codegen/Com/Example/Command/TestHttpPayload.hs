@@ -27,6 +27,7 @@ import qualified Data.Text.Encoding
 import qualified GHC.Generics
 import qualified GHC.Show
 import qualified Network.HTTP.Client
+import qualified Network.HTTP.Types
 import qualified Network.HTTP.Types.Header
 import qualified Network.HTTP.Types.Method
 import qualified Network.HTTP.Types.URI
@@ -111,6 +112,9 @@ testHttpPayload client inputB = do
 
 deserializeResponse :: Network.HTTP.Client.Response Data.ByteString.Lazy.ByteString -> Data.Either.Either Data.Text.Text Com.Example.Model.TestHttpPayloadOutput.TestHttpPayloadOutput
 deserializeResponse response = do
+    if Network.HTTP.Client.responseStatus response /= Network.HTTP.Types.status200
+      then Left "Un-expected status."
+      else pure ()
     
     responseObject :: Data.Aeson.Object <-
         Network.HTTP.Client.responseBody response

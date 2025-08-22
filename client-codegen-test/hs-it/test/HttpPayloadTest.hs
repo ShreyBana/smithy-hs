@@ -21,6 +21,8 @@ import Test.HUnit qualified as HUnit
 import Data.Either.Extra (fromRight')
 import Data.Maybe (fromJust)
 import Network.HTTP.Date (parseHTTPDate)
+import Network.Wai qualified as Wai
+import Network.HTTP.Types qualified as Http
 
 testHttpPayload :: State -> HUnit.Test
 testHttpPayload state = HUnit.TestCase $ do
@@ -48,7 +50,7 @@ testHttpPayload state = HUnit.TestCase $ do
         ]
       }
 
-  _ <- Stm.atomically $ Stm.writeTMVar (res state) defaultResponse
+  _ <- Stm.atomically $ Stm.writeTMVar (res state) (Wai.responseLBS HTTP.created201 [] "{ \"message\": \"Success\" }")
 
   result <- TestHttpPayload.testHttpPayload (client state) $ do
     TestHttpPayloadInput.setPayload coffeeItem

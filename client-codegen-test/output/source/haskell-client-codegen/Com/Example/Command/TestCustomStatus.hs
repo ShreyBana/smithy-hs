@@ -1,12 +1,11 @@
-module Com.Example.Command.TestHttpLabels (
-    TestHttpLabelsError(..),
-    testHttpLabels
+module Com.Example.Command.TestCustomStatus (
+    TestCustomStatusError(..),
+    testCustomStatus
 ) where
 import qualified Com.Example.ExampleServiceClient
 import qualified Com.Example.Model.InternalServerError
-import qualified Com.Example.Model.TestHttpLabelsInput
-import qualified Com.Example.Model.TestHttpLabelsOutput
-import qualified Com.Example.Utility
+import qualified Com.Example.Model.TestCustomStatusInput
+import qualified Com.Example.Model.TestCustomStatusOutput
 import qualified Control.Exception
 import qualified Data.Aeson
 import qualified Data.Bifunctor
@@ -28,37 +27,32 @@ import qualified Network.HTTP.Types
 import qualified Network.HTTP.Types.Method
 import qualified Network.HTTP.Types.URI
 
-data TestHttpLabelsError =
+data TestCustomStatusError =
     InternalServerError Com.Example.Model.InternalServerError.InternalServerError
     | BuilderError Data.Text.Text
     | RequestError Data.Text.Text
        deriving (GHC.Generics.Generic, GHC.Show.Show)
 
-instance Data.Aeson.ToJSON TestHttpLabelsError
-instance Data.Aeson.FromJSON TestHttpLabelsError
+instance Data.Aeson.ToJSON TestCustomStatusError
+instance Data.Aeson.FromJSON TestCustomStatusError
 
-serTestHttpLabelsLABEL :: Com.Example.Model.TestHttpLabelsInput.TestHttpLabelsInput -> Data.ByteString.ByteString
-serTestHttpLabelsLABEL input = 
-    Data.ByteString.toStrict $ Data.ByteString.Builder.toLazyByteString $ Network.HTTP.Types.URI.encodePathSegmentsRelative [
-        "path_params",
-        (Com.Example.Model.TestHttpLabelsInput.identifier input
-                    Data.Function.& Com.Example.Utility.toRequestSegment)
-        ,
-        (Com.Example.Model.TestHttpLabelsInput.enabled input
-                    Data.Function.& Com.Example.Utility.toRequestSegment)
-        ,
-        (Com.Example.Model.TestHttpLabelsInput.name input
-                    Data.Function.& Com.Example.Utility.toRequestSegment)
-        ,
-        (Com.Example.Model.TestHttpLabelsInput.time input
-                    Data.Function.& Com.Example.Utility.toRequestSegment)
-        
+serTestCustomStatusPAYLOAD:: Com.Example.Model.TestCustomStatusInput.TestCustomStatusInput -> Network.HTTP.Client.RequestBody
+serTestCustomStatusPAYLOAD input =
+    Network.HTTP.Client.RequestBodyLBS $ Data.Aeson.encode $ Data.Aeson.object [
+        "type" Data.Aeson..= Com.Example.Model.TestCustomStatusInput.type' input
         ]
     
 
-testHttpLabels :: Com.Example.ExampleServiceClient.ExampleServiceClient -> Com.Example.Model.TestHttpLabelsInput.TestHttpLabelsInputBuilder () -> IO (Data.Either.Either TestHttpLabelsError Com.Example.Model.TestHttpLabelsOutput.TestHttpLabelsOutput)
-testHttpLabels client inputB = do
-    let inputE = Com.Example.Model.TestHttpLabelsInput.build inputB
+serTestCustomStatusLABEL :: Com.Example.Model.TestCustomStatusInput.TestCustomStatusInput -> Data.ByteString.ByteString
+serTestCustomStatusLABEL input = 
+    Data.ByteString.toStrict $ Data.ByteString.Builder.toLazyByteString $ Network.HTTP.Types.URI.encodePathSegmentsRelative [
+        "custom-status"
+        ]
+    
+
+testCustomStatus :: Com.Example.ExampleServiceClient.ExampleServiceClient -> Com.Example.Model.TestCustomStatusInput.TestCustomStatusInputBuilder () -> IO (Data.Either.Either TestCustomStatusError Com.Example.Model.TestCustomStatusOutput.TestCustomStatusOutput)
+testCustomStatus client inputB = do
+    let inputE = Com.Example.Model.TestCustomStatusInput.build inputB
         baseUri = Com.Example.ExampleServiceClient.endpointUri client
         httpManager = Com.Example.ExampleServiceClient.httpManager client
         requestE = Network.HTTP.Client.requestFromURI @(Data.Either.Either Control.Exception.SomeException) baseUri
@@ -72,26 +66,27 @@ testHttpLabels client inputB = do
         
     
     where
-        method = Network.HTTP.Types.Method.methodGet
+        method = Network.HTTP.Types.Method.methodPost
         token = Data.Text.Encoding.encodeUtf8 $ Com.Example.ExampleServiceClient.token client
         toRequest input req =
             req {
-                Network.HTTP.Client.path = serTestHttpLabelsLABEL input
+                Network.HTTP.Client.path = serTestCustomStatusLABEL input
                 , Network.HTTP.Client.method = method
+                , Network.HTTP.Client.requestBody = serTestCustomStatusPAYLOAD input
                 , Network.HTTP.Client.requestHeaders = [("Authorization", "Bearer " <> token)]
             }
         
     
 
 
-deserializeResponse :: Network.HTTP.Client.Response Data.ByteString.Lazy.ByteString -> Data.Either.Either Data.Text.Text Com.Example.Model.TestHttpLabelsOutput.TestHttpLabelsOutput
+deserializeResponse :: Network.HTTP.Client.Response Data.ByteString.Lazy.ByteString -> Data.Either.Either Data.Text.Text Com.Example.Model.TestCustomStatusOutput.TestCustomStatusOutput
 deserializeResponse response = do
-    if Network.HTTP.Client.responseStatus response /= Network.HTTP.Types.status200
+    if Network.HTTP.Client.responseStatus response /= Network.HTTP.Types.status201
       then Left "Un-expected status."
       else pure ()
     
     
-    Com.Example.Model.TestHttpLabelsOutput.build $ do
+    Com.Example.Model.TestCustomStatusOutput.build $ do
         pure ()
     
     where

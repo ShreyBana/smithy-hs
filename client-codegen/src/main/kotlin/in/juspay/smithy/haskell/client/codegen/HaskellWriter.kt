@@ -96,6 +96,7 @@ class HaskellWriter(
         putContext("query", Http.Query)
         putContext("path", Http.Path)
         putContext("httpClient", Http.HttpClient)
+        putContext("httpTypes", Http.HttpTypes)
         putContext("first", BiFunctor.first)
     }
 

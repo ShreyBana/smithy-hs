@@ -18,6 +18,7 @@ service ExampleService {
         TestHttpPayloadDeserialization
         TestHttpDocumentDeserialization
         TestReservedWords
+        TestCustomStatus
         // TestAllFeaturesSer
     ]
     errors: [
@@ -450,4 +451,14 @@ operation TestReservedWords {
         @required
         where: String
     }
+}
+
+@http(method: "POST", uri: "/custom-status", code: 201)
+operation TestCustomStatus {
+    input := {
+        @required
+        type: String
+    }
+
+    output := {}
 }

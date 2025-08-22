@@ -88,6 +88,7 @@ serverSettings serverStarted =
       putStrLn "Server started. Signaling main thread."
         >> MVar.putMVar serverStarted True
 
+-- TODO Add test for handling custom-status codes.
 main :: IO ()
 main = do
   req <- Stm.newEmptyTMVarIO @Wai.Request

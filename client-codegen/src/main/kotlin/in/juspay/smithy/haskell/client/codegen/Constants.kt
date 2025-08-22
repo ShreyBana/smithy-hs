@@ -89,7 +89,7 @@ object HaskellSymbol {
         .dependencies(
             SymbolDependency.builder()
                 .packageName("aeson")
-                .version(CodegenUtils.depRange("2.0.0", "2.2.0"))
+                .version(CodegenUtils.depRange("2.0.0", "2.3.0"))
                 .build()
         )
         .build()
@@ -282,10 +282,6 @@ object Http {
         .name("Custom")
         .build()
 
-    val Request: Symbol = HttpClientModule.toBuilder()
-        .name("Request")
-        .namespace(CLIENT_MODULE, ".")
-        .build()
     val rqPath: Symbol = HttpClientModule.toBuilder()
         .name("path")
         .namespace(CLIENT_MODULE, ".")
@@ -310,6 +306,9 @@ object Http {
     val HttpClient: Symbol = HttpClientModule.toBuilder()
         .name("httpLbs")
         .namespace(CLIENT_MODULE, ".")
+        .build()
+    val HttpTypes: Symbol = HttpTypesModule.toBuilder()
+        .name("##INVALID_SYMBOL##")
         .build()
 
     val DefaultHttpManagerSettings: Symbol = HttpClientModule.toBuilder()
