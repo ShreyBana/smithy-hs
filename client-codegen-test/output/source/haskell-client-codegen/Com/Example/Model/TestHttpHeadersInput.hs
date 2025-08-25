@@ -15,6 +15,7 @@ module Com.Example.Model.TestHttpHeadersInput (
     time,
     prefixHeaders
 ) where
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -22,6 +23,7 @@ import qualified Data.Either
 import qualified Data.Eq
 import qualified Data.Function
 import qualified Data.Functor
+import qualified Data.Int
 import qualified Data.Map
 import qualified Data.Maybe
 import qualified Data.Text
@@ -29,9 +31,10 @@ import qualified Data.Text.Encoding
 import qualified GHC.Generics
 import qualified GHC.Show
 import qualified Network.HTTP.Date
+import qualified Network.HTTP.Types.Method
 
 data TestHttpHeadersInput = TestHttpHeadersInput {
-    intHeader :: Data.Maybe.Maybe Integer,
+    intHeader :: Data.Maybe.Maybe Data.Int.Int32,
     stringHeader :: Data.Maybe.Maybe Data.Text.Text,
     boolHeader :: Data.Maybe.Maybe Bool,
     listHeader :: Data.Maybe.Maybe ([] Data.Text.Text),
@@ -54,6 +57,7 @@ instance Data.Aeson.ToJSON TestHttpHeadersInput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestHttpHeadersInput
 
 instance Data.Aeson.FromJSON TestHttpHeadersInput where
     parseJSON = Data.Aeson.withObject "TestHttpHeadersInput" $ \v -> TestHttpHeadersInput
@@ -75,7 +79,7 @@ instance Data.Aeson.FromJSON TestHttpHeadersInput where
 
 
 data TestHttpHeadersInputBuilderState = TestHttpHeadersInputBuilderState {
-    intHeaderBuilderState :: Data.Maybe.Maybe Integer,
+    intHeaderBuilderState :: Data.Maybe.Maybe Data.Int.Int32,
     stringHeaderBuilderState :: Data.Maybe.Maybe Data.Text.Text,
     boolHeaderBuilderState :: Data.Maybe.Maybe Bool,
     listHeaderBuilderState :: Data.Maybe.Maybe ([] Data.Text.Text),
@@ -116,7 +120,7 @@ instance Control.Monad.Monad TestHttpHeadersInputBuilder where
             (TestHttpHeadersInputBuilder h) = g a
         in h s')
 
-setIntheader :: Data.Maybe.Maybe Integer -> TestHttpHeadersInputBuilder ()
+setIntheader :: Data.Maybe.Maybe Data.Int.Int32 -> TestHttpHeadersInputBuilder ()
 setIntheader value =
    TestHttpHeadersInputBuilder (\s -> (s { intHeaderBuilderState = value }, ()))
 
@@ -158,4 +162,19 @@ build builder = do
         prefixHeaders = prefixHeaders'
     })
 
+
+instance Com.Example.Utility.IntoRequestBuilder TestHttpHeadersInput where
+    intoRequestBuilder self = do
+        Com.Example.Utility.setMethod Network.HTTP.Types.Method.methodGet
+        Com.Example.Utility.setPath [
+            "headers"
+            ]
+        
+        Com.Example.Utility.serHeaderMap "x-prefix-" (prefixHeaders self)
+        Com.Example.Utility.serHeader "x-header-bool" (boolHeader self)
+        Com.Example.Utility.serHeader "x-header-int" (intHeader self)
+        Com.Example.Utility.serHeader "x-header-list" (listHeader self)
+        Com.Example.Utility.serHeader "x-header-time" (time self)
+        Com.Example.Utility.serHeader "x-header-string" (stringHeader self)
+        
 

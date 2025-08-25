@@ -18,6 +18,7 @@ module Com.Example.Model.TestHttpPayloadDeserializationOutput (
     item
 ) where
 import qualified Com.Example.Model.CoffeeItem
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -25,6 +26,7 @@ import qualified Data.Either
 import qualified Data.Eq
 import qualified Data.Function
 import qualified Data.Functor
+import qualified Data.Int
 import qualified Data.Map
 import qualified Data.Maybe
 import qualified Data.Text
@@ -32,10 +34,11 @@ import qualified Data.Text.Encoding
 import qualified GHC.Generics
 import qualified GHC.Show
 import qualified Network.HTTP.Date
+import qualified Network.HTTP.Types
 
 data TestHttpPayloadDeserializationOutput = TestHttpPayloadDeserializationOutput {
     outputHeader :: Data.Maybe.Maybe Data.Text.Text,
-    outputHeaderInt :: Data.Maybe.Maybe Integer,
+    outputHeaderInt :: Data.Maybe.Maybe Data.Int.Int32,
     outputHeaderBool :: Data.Maybe.Maybe Bool,
     time :: Data.Maybe.Maybe Network.HTTP.Date.HTTPDate,
     outputHeaderList :: Data.Maybe.Maybe ([] Data.Text.Text),
@@ -59,6 +62,7 @@ instance Data.Aeson.ToJSON TestHttpPayloadDeserializationOutput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestHttpPayloadDeserializationOutput
 
 instance Data.Aeson.FromJSON TestHttpPayloadDeserializationOutput where
     parseJSON = Data.Aeson.withObject "TestHttpPayloadDeserializationOutput" $ \v -> TestHttpPayloadDeserializationOutput
@@ -82,7 +86,7 @@ instance Data.Aeson.FromJSON TestHttpPayloadDeserializationOutput where
 
 data TestHttpPayloadDeserializationOutputBuilderState = TestHttpPayloadDeserializationOutputBuilderState {
     outputHeaderBuilderState :: Data.Maybe.Maybe Data.Text.Text,
-    outputHeaderIntBuilderState :: Data.Maybe.Maybe Integer,
+    outputHeaderIntBuilderState :: Data.Maybe.Maybe Data.Int.Int32,
     outputHeaderBoolBuilderState :: Data.Maybe.Maybe Bool,
     timeBuilderState :: Data.Maybe.Maybe Network.HTTP.Date.HTTPDate,
     outputHeaderListBuilderState :: Data.Maybe.Maybe ([] Data.Text.Text),
@@ -128,7 +132,7 @@ setOutputheader :: Data.Maybe.Maybe Data.Text.Text -> TestHttpPayloadDeserializa
 setOutputheader value =
    TestHttpPayloadDeserializationOutputBuilder (\s -> (s { outputHeaderBuilderState = value }, ()))
 
-setOutputheaderint :: Data.Maybe.Maybe Integer -> TestHttpPayloadDeserializationOutputBuilder ()
+setOutputheaderint :: Data.Maybe.Maybe Data.Int.Int32 -> TestHttpPayloadDeserializationOutputBuilder ()
 setOutputheaderint value =
    TestHttpPayloadDeserializationOutputBuilder (\s -> (s { outputHeaderIntBuilderState = value }, ()))
 
@@ -172,4 +176,24 @@ build builder = do
         item = item'
     })
 
+
+instance Com.Example.Utility.FromResponseParser TestHttpPayloadDeserializationOutput where
+    expectedStatus = Network.HTTP.Types.status200
+    responseParser = do
+        var0 <- Com.Example.Utility.deSerHeaderMap "x-output-prefix-"
+        var1 <- Com.Example.Utility.deSerHeader "x-output-header"
+        var2 <- Com.Example.Utility.deSerHeader "x-output-header-bool"
+        var3 <- Com.Example.Utility.deSerHeader "x-output-header-time"
+        var4 <- Com.Example.Utility.deSerHeader "x-output-header-list"
+        var5 <- Com.Example.Utility.deSerHeader "x-output-header-int"
+        var6 <- Com.Example.Utility.deSerBody
+        pure $ TestHttpPayloadDeserializationOutput {
+            outputHeader = var1,
+            outputHeaderInt = var5,
+            outputHeaderBool = var2,
+            time = var3,
+            outputHeaderList = var4,
+            outputPrefixHeaders = var0,
+            item = var6
+        }
 

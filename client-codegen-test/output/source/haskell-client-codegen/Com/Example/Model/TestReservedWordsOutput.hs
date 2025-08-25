@@ -51,6 +51,7 @@ module Com.Example.Model.TestReservedWordsOutput (
     then',
     where'
 ) where
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -61,6 +62,7 @@ import qualified Data.Maybe
 import qualified Data.Text
 import qualified GHC.Generics
 import qualified GHC.Show
+import qualified Network.HTTP.Types
 
 data TestReservedWordsOutput = TestReservedWordsOutput {
     type' :: Data.Text.Text,
@@ -122,6 +124,7 @@ instance Data.Aeson.ToJSON TestReservedWordsOutput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestReservedWordsOutput
 
 instance Data.Aeson.FromJSON TestReservedWordsOutput where
     parseJSON = Data.Aeson.withObject "TestReservedWordsOutput" $ \v -> TestReservedWordsOutput
@@ -381,4 +384,59 @@ build builder = do
         where' = where''
     })
 
+
+instance Com.Example.Utility.FromResponseParser TestReservedWordsOutput where
+    expectedStatus = Network.HTTP.Types.status200
+    responseParser = do
+        
+        var0 <- Com.Example.Utility.deSerField "qualified"
+        var1 <- Com.Example.Utility.deSerField "instance"
+        var2 <- Com.Example.Utility.deSerField "data"
+        var3 <- Com.Example.Utility.deSerField "import"
+        var4 <- Com.Example.Utility.deSerField "in"
+        var5 <- Com.Example.Utility.deSerField "module"
+        var6 <- Com.Example.Utility.deSerField "infixr"
+        var7 <- Com.Example.Utility.deSerField "do"
+        var8 <- Com.Example.Utility.deSerField "infix"
+        var9 <- Com.Example.Utility.deSerField "then"
+        var10 <- Com.Example.Utility.deSerField "type"
+        var11 <- Com.Example.Utility.deSerField "newtype"
+        var12 <- Com.Example.Utility.deSerField "hiding"
+        var13 <- Com.Example.Utility.deSerField "as"
+        var14 <- Com.Example.Utility.deSerField "default"
+        var15 <- Com.Example.Utility.deSerField "deriving"
+        var16 <- Com.Example.Utility.deSerField "else"
+        var17 <- Com.Example.Utility.deSerField "infixl"
+        var18 <- Com.Example.Utility.deSerField "of"
+        var19 <- Com.Example.Utility.deSerField "let"
+        var20 <- Com.Example.Utility.deSerField "where"
+        var21 <- Com.Example.Utility.deSerField "class"
+        var22 <- Com.Example.Utility.deSerField "if"
+        var23 <- Com.Example.Utility.deSerField "case"
+        pure $ TestReservedWordsOutput {
+            type' = var10,
+            data' = var2,
+            as' = var13,
+            case' = var23,
+            class' = var21,
+            default' = var14,
+            deriving' = var15,
+            do' = var7,
+            else' = var16,
+            hiding' = var12,
+            if' = var22,
+            import' = var3,
+            in' = var4,
+            infix' = var8,
+            infixl' = var17,
+            infixr' = var6,
+            instance' = var1,
+            let' = var19,
+            module' = var5,
+            newtype' = var11,
+            of' = var18,
+            qualified' = var0,
+            then' = var9,
+            where' = var20
+        }
 

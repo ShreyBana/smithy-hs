@@ -50,4 +50,15 @@ instance Com.Example.Utility.ResponseSegment TemperaturePreference where
         Data.Either.Left err -> Data.Either.Left $ Data.Text.pack $ show err
     
 
+instance Com.Example.Utility.SerDe TemperaturePreference where
+    serializeElement HOT = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "HOT"
+    serializeElement ICED = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "ICED"
+    serializeElement EXTRA_HOT = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "EXTRA_HOT"
+    deSerializeElement bs = case Data.Text.Encoding.decodeUtf8 bs of
+        "HOT" -> Right HOT
+        "ICED" -> Right ICED
+        "EXTRA_HOT" -> Right EXTRA_HOT
+        e -> Left ("Failed to de-serialize TemperaturePreference, encountered unknown variant: " ++ (show bs))
+    
+
 

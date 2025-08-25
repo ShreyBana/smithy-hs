@@ -15,6 +15,7 @@ module Com.Example.Model.TestQueryInput (
     time,
     mapQueryParams
 ) where
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -22,6 +23,7 @@ import qualified Data.Either
 import qualified Data.Eq
 import qualified Data.Function
 import qualified Data.Functor
+import qualified Data.Int
 import qualified Data.Map
 import qualified Data.Maybe
 import qualified Data.Text
@@ -29,9 +31,10 @@ import qualified Data.Text.Encoding
 import qualified GHC.Generics
 import qualified GHC.Show
 import qualified Network.HTTP.Date
+import qualified Network.HTTP.Types.Method
 
 data TestQueryInput = TestQueryInput {
-    page :: Data.Maybe.Maybe Integer,
+    page :: Data.Maybe.Maybe Data.Int.Int32,
     coffeeType :: Data.Maybe.Maybe Data.Text.Text,
     enabled :: Data.Maybe.Maybe Bool,
     tags :: Data.Maybe.Maybe ([] Data.Text.Text),
@@ -54,6 +57,7 @@ instance Data.Aeson.ToJSON TestQueryInput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestQueryInput
 
 instance Data.Aeson.FromJSON TestQueryInput where
     parseJSON = Data.Aeson.withObject "TestQueryInput" $ \v -> TestQueryInput
@@ -75,7 +79,7 @@ instance Data.Aeson.FromJSON TestQueryInput where
 
 
 data TestQueryInputBuilderState = TestQueryInputBuilderState {
-    pageBuilderState :: Data.Maybe.Maybe Integer,
+    pageBuilderState :: Data.Maybe.Maybe Data.Int.Int32,
     coffeeTypeBuilderState :: Data.Maybe.Maybe Data.Text.Text,
     enabledBuilderState :: Data.Maybe.Maybe Bool,
     tagsBuilderState :: Data.Maybe.Maybe ([] Data.Text.Text),
@@ -116,7 +120,7 @@ instance Control.Monad.Monad TestQueryInputBuilder where
             (TestQueryInputBuilder h) = g a
         in h s')
 
-setPage :: Data.Maybe.Maybe Integer -> TestQueryInputBuilder ()
+setPage :: Data.Maybe.Maybe Data.Int.Int32 -> TestQueryInputBuilder ()
 setPage value =
    TestQueryInputBuilder (\s -> (s { pageBuilderState = value }, ()))
 
@@ -158,4 +162,19 @@ build builder = do
         mapQueryParams = mapQueryParams'
     })
 
+
+instance Com.Example.Utility.IntoRequestBuilder TestQueryInput where
+    intoRequestBuilder self = do
+        Com.Example.Utility.setMethod Network.HTTP.Types.Method.methodGet
+        Com.Example.Utility.setPath [
+            "query_params"
+            ]
+        Com.Example.Utility.serQueryMap (mapQueryParams self)
+        Com.Example.Utility.serQuery "type" (coffeeType self)
+        Com.Example.Utility.serQuery "page" (page self)
+        Com.Example.Utility.serQuery "time" (time self)
+        Com.Example.Utility.serQuery "enabled" (enabled self)
+        Com.Example.Utility.serQuery "tags" (tags self)
+        
+        
 

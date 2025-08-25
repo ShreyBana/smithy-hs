@@ -11,6 +11,7 @@ module Com.Example.Model.TestHttpLabelsInput (
     name,
     time
 ) where
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -18,15 +19,17 @@ import qualified Data.Either
 import qualified Data.Eq
 import qualified Data.Function
 import qualified Data.Functor
+import qualified Data.Int
 import qualified Data.Maybe
 import qualified Data.Text
 import qualified Data.Text.Encoding
 import qualified GHC.Generics
 import qualified GHC.Show
 import qualified Network.HTTP.Date
+import qualified Network.HTTP.Types.Method
 
 data TestHttpLabelsInput = TestHttpLabelsInput {
-    identifier :: Integer,
+    identifier :: Data.Int.Int32,
     enabled :: Bool,
     name :: Data.Text.Text,
     time :: Network.HTTP.Date.HTTPDate
@@ -45,6 +48,7 @@ instance Data.Aeson.ToJSON TestHttpLabelsInput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestHttpLabelsInput
 
 instance Data.Aeson.FromJSON TestHttpLabelsInput where
     parseJSON = Data.Aeson.withObject "TestHttpLabelsInput" $ \v -> TestHttpLabelsInput
@@ -63,7 +67,7 @@ instance Data.Aeson.FromJSON TestHttpLabelsInput where
 
 
 data TestHttpLabelsInputBuilderState = TestHttpLabelsInputBuilderState {
-    identifierBuilderState :: Data.Maybe.Maybe Integer,
+    identifierBuilderState :: Data.Maybe.Maybe Data.Int.Int32,
     enabledBuilderState :: Data.Maybe.Maybe Bool,
     nameBuilderState :: Data.Maybe.Maybe Data.Text.Text,
     timeBuilderState :: Data.Maybe.Maybe Network.HTTP.Date.HTTPDate
@@ -100,7 +104,7 @@ instance Control.Monad.Monad TestHttpLabelsInputBuilder where
             (TestHttpLabelsInputBuilder h) = g a
         in h s')
 
-setIdentifier :: Integer -> TestHttpLabelsInputBuilder ()
+setIdentifier :: Data.Int.Int32 -> TestHttpLabelsInputBuilder ()
 setIdentifier value =
    TestHttpLabelsInputBuilder (\s -> (s { identifierBuilderState = Data.Maybe.Just value }, ()))
 
@@ -130,4 +134,18 @@ build builder = do
         time = time'
     })
 
+
+instance Com.Example.Utility.IntoRequestBuilder TestHttpLabelsInput where
+    intoRequestBuilder self = do
+        Com.Example.Utility.setMethod Network.HTTP.Types.Method.methodGet
+        Com.Example.Utility.setPath [
+            "path_params",
+            Com.Example.Utility.serializeElement (identifier self),
+            Com.Example.Utility.serializeElement (enabled self),
+            Com.Example.Utility.serializeElement (name self),
+            Com.Example.Utility.serializeElement (time self)
+            ]
+        
+        
+        
 

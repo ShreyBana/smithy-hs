@@ -5,6 +5,7 @@ module Com.Example.Model.TestHttpDocumentDeserializationInput (
     TestHttpDocumentDeserializationInput,
     coffeeType
 ) where
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -15,6 +16,7 @@ import qualified Data.Maybe
 import qualified Data.Text
 import qualified GHC.Generics
 import qualified GHC.Show
+import qualified Network.HTTP.Types.Method
 
 data TestHttpDocumentDeserializationInput = TestHttpDocumentDeserializationInput {
     coffeeType :: Data.Maybe.Maybe Data.Text.Text
@@ -30,6 +32,7 @@ instance Data.Aeson.ToJSON TestHttpDocumentDeserializationInput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestHttpDocumentDeserializationInput
 
 instance Data.Aeson.FromJSON TestHttpDocumentDeserializationInput where
     parseJSON = Data.Aeson.withObject "TestHttpDocumentDeserializationInput" $ \v -> TestHttpDocumentDeserializationInput
@@ -82,4 +85,14 @@ build builder = do
         coffeeType = coffeeType'
     })
 
+
+instance Com.Example.Utility.IntoRequestBuilder TestHttpDocumentDeserializationInput where
+    intoRequestBuilder self = do
+        Com.Example.Utility.setMethod Network.HTTP.Types.Method.methodGet
+        Com.Example.Utility.setPath [
+            "document_response"
+            ]
+        Com.Example.Utility.serQuery "type" (coffeeType self)
+        
+        
 

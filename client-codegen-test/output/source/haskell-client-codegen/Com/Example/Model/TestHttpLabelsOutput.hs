@@ -3,6 +3,7 @@ module Com.Example.Model.TestHttpLabelsOutput (
     TestHttpLabelsOutputBuilder,
     TestHttpLabelsOutput
 ) where
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -12,6 +13,7 @@ import qualified Data.Functor
 import qualified Data.Text
 import qualified GHC.Generics
 import qualified GHC.Show
+import qualified Network.HTTP.Types
 
 data TestHttpLabelsOutput = TestHttpLabelsOutput {
 } deriving (
@@ -25,6 +27,7 @@ instance Data.Aeson.ToJSON TestHttpLabelsOutput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestHttpLabelsOutput
 
 instance Data.Aeson.FromJSON TestHttpLabelsOutput where
     parseJSON = Data.Aeson.withObject "TestHttpLabelsOutput" $ \_ -> pure $ TestHttpLabelsOutput
@@ -68,4 +71,13 @@ build builder = do
     Data.Either.Right (TestHttpLabelsOutput { 
     })
 
+
+instance Com.Example.Utility.FromResponseParser TestHttpLabelsOutput where
+    expectedStatus = Network.HTTP.Types.status200
+    responseParser = do
+        
+        
+        pure $ TestHttpLabelsOutput {
+            
+        }
 

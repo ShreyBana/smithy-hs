@@ -51,6 +51,7 @@ module Com.Example.Model.TestReservedWordsInput (
     then',
     where'
 ) where
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -61,6 +62,7 @@ import qualified Data.Maybe
 import qualified Data.Text
 import qualified GHC.Generics
 import qualified GHC.Show
+import qualified Network.HTTP.Types.Method
 
 data TestReservedWordsInput = TestReservedWordsInput {
     type' :: Data.Text.Text,
@@ -122,6 +124,7 @@ instance Data.Aeson.ToJSON TestReservedWordsInput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestReservedWordsInput
 
 instance Data.Aeson.FromJSON TestReservedWordsInput where
     parseJSON = Data.Aeson.withObject "TestReservedWordsInput" $ \v -> TestReservedWordsInput
@@ -381,4 +384,37 @@ build builder = do
         where' = where''
     })
 
+
+instance Com.Example.Utility.IntoRequestBuilder TestReservedWordsInput where
+    intoRequestBuilder self = do
+        Com.Example.Utility.setMethod Network.HTTP.Types.Method.methodPost
+        Com.Example.Utility.setPath [
+            "reserved-words"
+            ]
+        
+        
+        Com.Example.Utility.serField "qualified" (qualified' self)
+        Com.Example.Utility.serField "instance" (instance' self)
+        Com.Example.Utility.serField "data" (data' self)
+        Com.Example.Utility.serField "import" (import' self)
+        Com.Example.Utility.serField "in" (in' self)
+        Com.Example.Utility.serField "module" (module' self)
+        Com.Example.Utility.serField "infixr" (infixr' self)
+        Com.Example.Utility.serField "do" (do' self)
+        Com.Example.Utility.serField "infix" (infix' self)
+        Com.Example.Utility.serField "then" (then' self)
+        Com.Example.Utility.serField "type" (type' self)
+        Com.Example.Utility.serField "newtype" (newtype' self)
+        Com.Example.Utility.serField "hiding" (hiding' self)
+        Com.Example.Utility.serField "as" (as' self)
+        Com.Example.Utility.serField "default" (default' self)
+        Com.Example.Utility.serField "deriving" (deriving' self)
+        Com.Example.Utility.serField "else" (else' self)
+        Com.Example.Utility.serField "infixl" (infixl' self)
+        Com.Example.Utility.serField "of" (of' self)
+        Com.Example.Utility.serField "let" (let' self)
+        Com.Example.Utility.serField "where" (where' self)
+        Com.Example.Utility.serField "class" (class' self)
+        Com.Example.Utility.serField "if" (if' self)
+        Com.Example.Utility.serField "case" (case' self)
 

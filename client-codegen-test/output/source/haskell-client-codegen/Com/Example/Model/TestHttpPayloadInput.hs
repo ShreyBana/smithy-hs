@@ -12,21 +12,24 @@ module Com.Example.Model.TestHttpPayloadInput (
     prefixHeaders
 ) where
 import qualified Com.Example.Model.CoffeeItem
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
 import qualified Data.Either
 import qualified Data.Eq
 import qualified Data.Functor
+import qualified Data.Int
 import qualified Data.Map
 import qualified Data.Maybe
 import qualified Data.Text
 import qualified GHC.Generics
 import qualified GHC.Show
+import qualified Network.HTTP.Types.Method
 
 data TestHttpPayloadInput = TestHttpPayloadInput {
     payload :: Com.Example.Model.CoffeeItem.CoffeeItem,
-    identifier :: Integer,
+    identifier :: Data.Int.Int32,
     stringHeader :: Data.Maybe.Maybe Data.Text.Text,
     prefixHeaders :: Data.Maybe.Maybe (Data.Map.Map Data.Text.Text Data.Text.Text)
 } deriving (
@@ -44,6 +47,7 @@ instance Data.Aeson.ToJSON TestHttpPayloadInput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestHttpPayloadInput
 
 instance Data.Aeson.FromJSON TestHttpPayloadInput where
     parseJSON = Data.Aeson.withObject "TestHttpPayloadInput" $ \v -> TestHttpPayloadInput
@@ -57,7 +61,7 @@ instance Data.Aeson.FromJSON TestHttpPayloadInput where
 
 data TestHttpPayloadInputBuilderState = TestHttpPayloadInputBuilderState {
     payloadBuilderState :: Data.Maybe.Maybe Com.Example.Model.CoffeeItem.CoffeeItem,
-    identifierBuilderState :: Data.Maybe.Maybe Integer,
+    identifierBuilderState :: Data.Maybe.Maybe Data.Int.Int32,
     stringHeaderBuilderState :: Data.Maybe.Maybe Data.Text.Text,
     prefixHeadersBuilderState :: Data.Maybe.Maybe (Data.Map.Map Data.Text.Text Data.Text.Text)
 } deriving (
@@ -97,7 +101,7 @@ setPayload :: Com.Example.Model.CoffeeItem.CoffeeItem -> TestHttpPayloadInputBui
 setPayload value =
    TestHttpPayloadInputBuilder (\s -> (s { payloadBuilderState = Data.Maybe.Just value }, ()))
 
-setIdentifier :: Integer -> TestHttpPayloadInputBuilder ()
+setIdentifier :: Data.Int.Int32 -> TestHttpPayloadInputBuilder ()
 setIdentifier value =
    TestHttpPayloadInputBuilder (\s -> (s { identifierBuilderState = Data.Maybe.Just value }, ()))
 
@@ -123,4 +127,16 @@ build builder = do
         prefixHeaders = prefixHeaders'
     })
 
+
+instance Com.Example.Utility.IntoRequestBuilder TestHttpPayloadInput where
+    intoRequestBuilder self = do
+        Com.Example.Utility.setMethod Network.HTTP.Types.Method.methodPost
+        Com.Example.Utility.setPath [
+            "payload",
+            Com.Example.Utility.serializeElement (identifier self)
+            ]
+        
+        Com.Example.Utility.serHeaderMap "x-prefix-" (prefixHeaders self)
+        Com.Example.Utility.serHeader "x-header-string" (stringHeader self)
+        Com.Example.Utility.serBody "application/json" (payload self)
 

@@ -21,6 +21,7 @@ module Com.Example.Model.TestHttpDocumentDeserializationOutput (
 ) where
 import qualified Com.Example.Model.CoffeeCustomization
 import qualified Com.Example.Model.CoffeeItem
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -28,6 +29,7 @@ import qualified Data.Either
 import qualified Data.Eq
 import qualified Data.Function
 import qualified Data.Functor
+import qualified Data.Int
 import qualified Data.Map
 import qualified Data.Maybe
 import qualified Data.Text
@@ -35,10 +37,11 @@ import qualified Data.Text.Encoding
 import qualified GHC.Generics
 import qualified GHC.Show
 import qualified Network.HTTP.Date
+import qualified Network.HTTP.Types
 
 data TestHttpDocumentDeserializationOutput = TestHttpDocumentDeserializationOutput {
     outputHeader :: Data.Maybe.Maybe Data.Text.Text,
-    outputHeaderInt :: Data.Maybe.Maybe Integer,
+    outputHeaderInt :: Data.Maybe.Maybe Data.Int.Int32,
     outputHeaderBool :: Data.Maybe.Maybe Bool,
     outputHeaderList :: Data.Maybe.Maybe ([] Data.Text.Text),
     outputPrefixHeaders :: Data.Maybe.Maybe (Data.Map.Map Data.Text.Text Data.Text.Text),
@@ -64,6 +67,7 @@ instance Data.Aeson.ToJSON TestHttpDocumentDeserializationOutput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestHttpDocumentDeserializationOutput
 
 instance Data.Aeson.FromJSON TestHttpDocumentDeserializationOutput where
     parseJSON = Data.Aeson.withObject "TestHttpDocumentDeserializationOutput" $ \v -> TestHttpDocumentDeserializationOutput
@@ -88,7 +92,7 @@ instance Data.Aeson.FromJSON TestHttpDocumentDeserializationOutput where
 
 data TestHttpDocumentDeserializationOutputBuilderState = TestHttpDocumentDeserializationOutputBuilderState {
     outputHeaderBuilderState :: Data.Maybe.Maybe Data.Text.Text,
-    outputHeaderIntBuilderState :: Data.Maybe.Maybe Integer,
+    outputHeaderIntBuilderState :: Data.Maybe.Maybe Data.Int.Int32,
     outputHeaderBoolBuilderState :: Data.Maybe.Maybe Bool,
     outputHeaderListBuilderState :: Data.Maybe.Maybe ([] Data.Text.Text),
     outputPrefixHeadersBuilderState :: Data.Maybe.Maybe (Data.Map.Map Data.Text.Text Data.Text.Text),
@@ -136,7 +140,7 @@ setOutputheader :: Data.Maybe.Maybe Data.Text.Text -> TestHttpDocumentDeserializ
 setOutputheader value =
    TestHttpDocumentDeserializationOutputBuilder (\s -> (s { outputHeaderBuilderState = value }, ()))
 
-setOutputheaderint :: Data.Maybe.Maybe Integer -> TestHttpDocumentDeserializationOutputBuilder ()
+setOutputheaderint :: Data.Maybe.Maybe Data.Int.Int32 -> TestHttpDocumentDeserializationOutputBuilder ()
 setOutputheaderint value =
    TestHttpDocumentDeserializationOutputBuilder (\s -> (s { outputHeaderIntBuilderState = value }, ()))
 
@@ -186,4 +190,26 @@ build builder = do
         time = time'
     })
 
+
+instance Com.Example.Utility.FromResponseParser TestHttpDocumentDeserializationOutput where
+    expectedStatus = Network.HTTP.Types.status200
+    responseParser = do
+        var0 <- Com.Example.Utility.deSerHeaderMap "x-output-prefix-"
+        var1 <- Com.Example.Utility.deSerHeader "x-output-header"
+        var2 <- Com.Example.Utility.deSerHeader "x-output-header-bool"
+        var3 <- Com.Example.Utility.deSerHeader "x-output-header-list"
+        var4 <- Com.Example.Utility.deSerHeader "x-output-header-int"
+        var5 <- Com.Example.Utility.deSerField "item"
+        var6 <- Com.Example.Utility.deSerField "customization"
+        var7 <- Com.Example.Utility.deSerField "time"
+        pure $ TestHttpDocumentDeserializationOutput {
+            outputHeader = var1,
+            outputHeaderInt = var4,
+            outputHeaderBool = var2,
+            outputHeaderList = var3,
+            outputPrefixHeaders = var0,
+            item = var5,
+            customization = var6,
+            time = var7
+        }
 

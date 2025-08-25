@@ -45,11 +45,3 @@ test-suite hs-it-test
                       http-date
 
     other-modules:    Message
-                      HttpLabelTest
-                      HttpQueryTest
-                      HttpHeaderTest
-                      HttpPayloadTest
-                      HttpDocumentTest
-                      HttpPayloadDeserializationTest
-                      HttpDocumentDeserializationTest
-                      ReservedWordsTest

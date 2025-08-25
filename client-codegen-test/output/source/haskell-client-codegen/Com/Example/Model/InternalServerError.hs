@@ -5,6 +5,7 @@ module Com.Example.Model.InternalServerError (
     InternalServerError,
     message
 ) where
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -15,6 +16,7 @@ import qualified Data.Maybe
 import qualified Data.Text
 import qualified GHC.Generics
 import qualified GHC.Show
+import qualified Network.HTTP.Types
 
 data InternalServerError = InternalServerError {
     message :: Data.Maybe.Maybe Data.Text.Text
@@ -30,6 +32,7 @@ instance Data.Aeson.ToJSON InternalServerError where
         ]
     
 
+instance Com.Example.Utility.SerializeBody InternalServerError
 
 instance Data.Aeson.FromJSON InternalServerError where
     parseJSON = Data.Aeson.withObject "InternalServerError" $ \v -> InternalServerError
@@ -82,4 +85,13 @@ build builder = do
         message = message'
     })
 
+
+instance Com.Example.Utility.FromResponseParser InternalServerError where
+    expectedStatus = Network.HTTP.Types.status500
+    responseParser = do
+        
+        var0 <- Com.Example.Utility.deSerField "message"
+        pure $ InternalServerError {
+            message = var0
+        }
 

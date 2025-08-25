@@ -21,11 +21,32 @@ class UtilityGenerator(
                 writer.addExport("ResponseSegment")
                 writer.addExport("fromResponseSegment")
                 writer.addExport("mapLeft")
+
+                writer.addExport("SerDe (..)")
+                writer.addExport("setMethod")
+                writer.addExport("setPath")
+                writer.addExport("serHeader")
+                writer.addExport("serHeaderMap")
+                writer.addExport("serQuery")
+                writer.addExport("serQueryMap")
+                writer.addExport("SerializeBody (..)")
+                writer.addExport("serField")
+                writer.addExport("FromResponseParser (..)")
+                writer.addExport("deSerHeader")
+                writer.addExport("deSerHeaderMap")
+                writer.addExport("deSerField")
+                writer.addExport("DeSerializeBody (..)")
+                writer.addExport("IntoRequestBuilder (..)")
+                writer.addExport("OperationError (..)")
+                writer.addExport("runOperation")
+
                 writer.addDependency(HaskellSymbol.Map)
                 writer.addDependency(Http.HTTPDate)
                 writer.addDependency(Http.UTCTime)
                 writer.addDependency(Http.POSIXTime)
-                writer.write(content)
+                writer.addDependency(HaskellSymbol.ByteString)
+                writer.addDependency(HaskellDependencies.CaseInsensitive)
+                writer.writeWithNoFormatting(content)
             }
     }
 }

@@ -5,6 +5,7 @@ module Com.Example.Model.TestQueryOutput (
     TestQueryOutput,
     message
 ) where
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -15,6 +16,7 @@ import qualified Data.Maybe
 import qualified Data.Text
 import qualified GHC.Generics
 import qualified GHC.Show
+import qualified Network.HTTP.Types
 
 data TestQueryOutput = TestQueryOutput {
     message :: Data.Text.Text
@@ -30,6 +32,7 @@ instance Data.Aeson.ToJSON TestQueryOutput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestQueryOutput
 
 instance Data.Aeson.FromJSON TestQueryOutput where
     parseJSON = Data.Aeson.withObject "TestQueryOutput" $ \v -> TestQueryOutput
@@ -82,4 +85,13 @@ build builder = do
         message = message'
     })
 
+
+instance Com.Example.Utility.FromResponseParser TestQueryOutput where
+    expectedStatus = Network.HTTP.Types.status200
+    responseParser = do
+        
+        var0 <- Com.Example.Utility.deSerField "message"
+        pure $ TestQueryOutput {
+            message = var0
+        }
 

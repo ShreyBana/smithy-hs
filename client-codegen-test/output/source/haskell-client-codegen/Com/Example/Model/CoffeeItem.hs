@@ -10,6 +10,7 @@ module Com.Example.Model.CoffeeItem (
     createdAt
 ) where
 import qualified Com.Example.Model.CoffeeType
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -42,6 +43,7 @@ instance Data.Aeson.ToJSON CoffeeItem where
         ]
     
 
+instance Com.Example.Utility.SerializeBody CoffeeItem
 
 instance Data.Aeson.FromJSON CoffeeItem where
     parseJSON = Data.Aeson.withObject "CoffeeItem" $ \v -> CoffeeItem

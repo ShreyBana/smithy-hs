@@ -65,4 +65,21 @@ instance Com.Example.Utility.ResponseSegment MilkType where
         Data.Either.Left err -> Data.Either.Left $ Data.Text.pack $ show err
     
 
+instance Com.Example.Utility.SerDe MilkType where
+    serializeElement WHOLE = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "WHOLE"
+    serializeElement SKIM = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "SKIM"
+    serializeElement OAT = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "OAT"
+    serializeElement ALMOND = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "ALMOND"
+    serializeElement SOY = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "SOY"
+    serializeElement NONE = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "NONE"
+    deSerializeElement bs = case Data.Text.Encoding.decodeUtf8 bs of
+        "WHOLE" -> Right WHOLE
+        "SKIM" -> Right SKIM
+        "OAT" -> Right OAT
+        "ALMOND" -> Right ALMOND
+        "SOY" -> Right SOY
+        "NONE" -> Right NONE
+        e -> Left ("Failed to de-serialize MilkType, encountered unknown variant: " ++ (show bs))
+    
+
 

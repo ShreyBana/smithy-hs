@@ -1,101 +1,42 @@
 module Com.Example.Command.TestCustomStatus (
-    TestCustomStatusError(..),
+    TestCustomStatusError (..),
     testCustomStatus
 ) where
 import qualified Com.Example.ExampleServiceClient
 import qualified Com.Example.Model.InternalServerError
 import qualified Com.Example.Model.TestCustomStatusInput
 import qualified Com.Example.Model.TestCustomStatusOutput
-import qualified Control.Exception
+import qualified Com.Example.Utility
 import qualified Data.Aeson
-import qualified Data.Bifunctor
-import qualified Data.ByteString
-import qualified Data.ByteString.Builder
-import qualified Data.ByteString.Char8
-import qualified Data.ByteString.Lazy
-import qualified Data.CaseInsensitive
-import qualified Data.Either
-import qualified Data.Function
-import qualified Data.Functor
-import qualified Data.List
 import qualified Data.Text
-import qualified Data.Text.Encoding
 import qualified GHC.Generics
 import qualified GHC.Show
-import qualified Network.HTTP.Client
-import qualified Network.HTTP.Types
-import qualified Network.HTTP.Types.Method
-import qualified Network.HTTP.Types.URI
 
 data TestCustomStatusError =
     InternalServerError Com.Example.Model.InternalServerError.InternalServerError
     | BuilderError Data.Text.Text
-    | RequestError Data.Text.Text
+    | DeSerializationError Data.Text.Text
+    | UnexpectedError Data.Text.Text
+    | UnexpectedStatus Data.Text.Text
        deriving (GHC.Generics.Generic, GHC.Show.Show)
 
 instance Data.Aeson.ToJSON TestCustomStatusError
 instance Data.Aeson.FromJSON TestCustomStatusError
+instance Com.Example.Utility.OperationError TestCustomStatusError where
+    mkDeSerializationError = DeSerializationError
+    mkUnexpectedError = UnexpectedError
+    mkUnexpectedStatusError = UnexpectedStatus . Data.Text.pack . show
 
-serTestCustomStatusPAYLOAD:: Com.Example.Model.TestCustomStatusInput.TestCustomStatusInput -> Network.HTTP.Client.RequestBody
-serTestCustomStatusPAYLOAD input =
-    Network.HTTP.Client.RequestBodyLBS $ Data.Aeson.encode $ Data.Aeson.object [
-        "type" Data.Aeson..= Com.Example.Model.TestCustomStatusInput.type' input
-        ]
-    
-
-serTestCustomStatusLABEL :: Com.Example.Model.TestCustomStatusInput.TestCustomStatusInput -> Data.ByteString.ByteString
-serTestCustomStatusLABEL input = 
-    Data.ByteString.toStrict $ Data.ByteString.Builder.toLazyByteString $ Network.HTTP.Types.URI.encodePathSegmentsRelative [
-        "custom-status"
-        ]
-    
-
-testCustomStatus :: Com.Example.ExampleServiceClient.ExampleServiceClient -> Com.Example.Model.TestCustomStatusInput.TestCustomStatusInputBuilder () -> IO (Data.Either.Either TestCustomStatusError Com.Example.Model.TestCustomStatusOutput.TestCustomStatusOutput)
-testCustomStatus client inputB = do
-    let inputE = Com.Example.Model.TestCustomStatusInput.build inputB
-        baseUri = Com.Example.ExampleServiceClient.endpointUri client
-        httpManager = Com.Example.ExampleServiceClient.httpManager client
-        requestE = Network.HTTP.Client.requestFromURI @(Data.Either.Either Control.Exception.SomeException) baseUri
-    
-    case (inputE, requestE) of
-        (Data.Either.Left err, _) -> return $ Data.Either.Left (BuilderError err)
-        (_, Data.Either.Left err) -> return $ Data.Either.Left (RequestError $ Data.Text.pack $ show err)
-        (Data.Either.Right input, Data.Either.Right req) -> do
-            response <- Network.HTTP.Client.httpLbs (toRequest input req) httpManager
-            return $ Data.Bifunctor.first (RequestError) $ deserializeResponse response
-        
-    
-    where
-        method = Network.HTTP.Types.Method.methodPost
-        token = Data.Text.Encoding.encodeUtf8 $ Com.Example.ExampleServiceClient.token client
-        toRequest input req =
-            req {
-                Network.HTTP.Client.path = serTestCustomStatusLABEL input
-                , Network.HTTP.Client.method = method
-                , Network.HTTP.Client.requestBody = serTestCustomStatusPAYLOAD input
-                , Network.HTTP.Client.requestHeaders = [("Authorization", "Bearer " <> token)]
-            }
-        
-    
+    getErrorParser status
+        | status == (Com.Example.Utility.expectedStatus @Com.Example.Model.InternalServerError.InternalServerError) = Just (fmap InternalServerError (Com.Example.Utility.responseParser @Com.Example.Model.InternalServerError.InternalServerError))
+        | otherwise = Nothing
 
 
-deserializeResponse :: Network.HTTP.Client.Response Data.ByteString.Lazy.ByteString -> Data.Either.Either Data.Text.Text Com.Example.Model.TestCustomStatusOutput.TestCustomStatusOutput
-deserializeResponse response = do
-    if Network.HTTP.Client.responseStatus response /= Network.HTTP.Types.status201
-      then Left "Un-expected status."
-      else pure ()
-    
-    
-    Com.Example.Model.TestCustomStatusOutput.build $ do
-        pure ()
-    
-    where
-        headers = Network.HTTP.Client.responseHeaders response
-                    Data.Function.& Data.List.map (\(n, v) -> (Data.Text.Encoding.decodeUtf8 (Data.CaseInsensitive.original n), v))
-        
-        findHeader name = snd Data.Functor.<$> Data.List.find ((name ==) . fst) headers
-        parseHeaderList :: Data.Aeson.FromJSON a => (Data.ByteString.ByteString -> Data.Either.Either Data.Text.Text a) -> Data.ByteString.ByteString -> Data.Either.Either Data.Text.Text [a]
-        parseHeaderList parser = sequence . Data.List.map (parser) . Data.ByteString.Char8.split ','
-    
-
+testCustomStatus :: Com.Example.ExampleServiceClient.ExampleServiceClient -> Com.Example.Model.TestCustomStatusInput.TestCustomStatusInputBuilder () -> IO (Either TestCustomStatusError Com.Example.Model.TestCustomStatusOutput.TestCustomStatusOutput)
+testCustomStatus client builder =
+    let endpoint = Com.Example.ExampleServiceClient.endpointUri client
+        manager = Com.Example.ExampleServiceClient.httpManager client
+        token = Com.Example.ExampleServiceClient.token client
+        setAuth = Com.Example.Utility.serHeader "Authorization" ("Bearer " <> token)
+    in Com.Example.Utility.runOperation endpoint manager setAuth (Com.Example.Model.TestCustomStatusInput.build builder)
 

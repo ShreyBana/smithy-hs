@@ -30,6 +30,7 @@ class EnumGenerator<T : ShapeDirective<Shape, HaskellContext, HaskellSettings>> 
 
             #{serializer:C|}
             #{deserializer:C|}
+            #{serDe:C}
             """.trimIndent()
 
             writer.pushState()
@@ -49,6 +50,7 @@ class EnumGenerator<T : ShapeDirective<Shape, HaskellContext, HaskellSettings>> 
                 "deserializer",
                 Runnable { generateDeserializers(writer, shape, symbol) }
             )
+            writer.putContext("serDe", Runnable { serDeGenerator(writer, shape, symbol) })
             writer.write(template)
             writer.addExport("${symbol.name}(..)")
             writer.exposeModule()
@@ -139,6 +141,28 @@ class EnumGenerator<T : ShapeDirective<Shape, HaskellContext, HaskellSettings>> 
             for (member in shape.members()) {
                 val enumValue = member.enumValue.dq
                 writer.write("toRequestSegment ${member.fieldName} = $enumValue")
+            }
+        }
+    }
+
+    private fun serDeGenerator(
+        writer: HaskellWriter,
+        shape: Shape,
+        symbol: Symbol
+    ) {
+        writer.openBlock("instance #{utility:N}.SerDe ${symbol.name} where", "") {
+            for (member in shape.members()) {
+                val value = member.enumValue.dq
+                writer.write("serializeElement ${member.fieldName} = #{encoding:N}.encodeUtf8 $ #{text:N}.pack $value")
+            }
+            writer.openBlock("deSerializeElement bs = case #{encoding:N}.decodeUtf8 bs of", "") {
+                for (member in shape.members()) {
+                    val value = member.enumValue.dq
+                    writer.write("$value -> Right ${member.fieldName}")
+                }
+                writer.write(
+                    "e -> Left (${"Failed to de-serialize ${symbol.name}, encountered unknown variant: ".dq} ++ (show bs))"
+                )
             }
         }
     }

@@ -5,6 +5,7 @@ module Com.Example.Model.TestHttpPayloadOutput (
     TestHttpPayloadOutput,
     message
 ) where
+import qualified Com.Example.Utility
 import qualified Control.Applicative
 import qualified Control.Monad
 import qualified Data.Aeson
@@ -15,6 +16,7 @@ import qualified Data.Maybe
 import qualified Data.Text
 import qualified GHC.Generics
 import qualified GHC.Show
+import qualified Network.HTTP.Types
 
 data TestHttpPayloadOutput = TestHttpPayloadOutput {
     message :: Data.Text.Text
@@ -30,6 +32,7 @@ instance Data.Aeson.ToJSON TestHttpPayloadOutput where
         ]
     
 
+instance Com.Example.Utility.SerializeBody TestHttpPayloadOutput
 
 instance Data.Aeson.FromJSON TestHttpPayloadOutput where
     parseJSON = Data.Aeson.withObject "TestHttpPayloadOutput" $ \v -> TestHttpPayloadOutput
@@ -82,4 +85,13 @@ build builder = do
         message = message'
     })
 
+
+instance Com.Example.Utility.FromResponseParser TestHttpPayloadOutput where
+    expectedStatus = Network.HTTP.Types.status200
+    responseParser = do
+        
+        var0 <- Com.Example.Utility.deSerField "message"
+        pure $ TestHttpPayloadOutput {
+            message = var0
+        }
 

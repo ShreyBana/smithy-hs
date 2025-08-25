@@ -55,4 +55,17 @@ instance Com.Example.Utility.ResponseSegment CoffeeType where
         Data.Either.Left err -> Data.Either.Left $ Data.Text.pack $ show err
     
 
+instance Com.Example.Utility.SerDe CoffeeType where
+    serializeElement DRIP = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "Drip"
+    serializeElement POUR_OVER = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "POUR_OVER"
+    serializeElement LATTE = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "LATTE"
+    serializeElement ESPRESSO = Data.Text.Encoding.encodeUtf8 $ Data.Text.pack "ESPRESSO"
+    deSerializeElement bs = case Data.Text.Encoding.decodeUtf8 bs of
+        "Drip" -> Right DRIP
+        "POUR_OVER" -> Right POUR_OVER
+        "LATTE" -> Right LATTE
+        "ESPRESSO" -> Right ESPRESSO
+        e -> Left ("Failed to de-serialize CoffeeType, encountered unknown variant: " ++ (show bs))
+    
+
 
